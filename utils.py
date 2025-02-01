@@ -65,13 +65,20 @@ def corruption(x, type_='ebm', noise_scale=0.3):
     return broken_data, mask
 
 
+# In your module (or another file), define top-level functions:
+
+def add_uniform_noise(x):
+    return x + torch.rand_like(x).div(256.)
+
+def rescale_tensor(x):
+    # Assuming `rescale` is imported from util and works as intended.
+    return rescale(x, 0.0001, 0.9999)
+
+# Then build the transform using these functions:
 transform = transforms.Compose([
-    # convert PIL image to tensor:
     transforms.ToTensor(),
-    # add uniform noise:
-    transforms.Lambda(lambda x: (x + torch.rand_like(x).div_(256.))),
-    # rescale to [0.0001, 0.9999]:
-    transforms.Lambda(lambda x: rescale(x, 0.0001, 0.9999)),
+    transforms.Lambda(add_uniform_noise),
+    transforms.Lambda(rescale_tensor),
 ])
 
 # image tensor range [0, 1]
